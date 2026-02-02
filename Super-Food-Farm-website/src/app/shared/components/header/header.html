@@ -15,6 +15,35 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarNav">
+        <form class="d-flex mx-auto mt-3 mt-lg-0 w-100" style="max-width: 450px">
+          <div
+            class="input-group shadow-sm"
+            style="
+              border-radius: var(--border-radius-full);
+              overflow: hidden;
+              border: 1px solid var(--border-color);
+            "
+          >
+            <span class="input-group-text bg-white border-0 pe-0">
+              <i class="bi bi-search text-muted"></i>
+            </span>
+
+            <input
+              type="text"
+              class="form-control border-0 ps-2"
+              placeholder="Search fresh harvest..."
+              style="box-shadow: none; height: 45px"
+            />
+
+            <button
+              class="btn btn-primary border-0 px-4 font-semibold"
+              type="submit"
+              style="background-color: var(--primary-color); border-radius: 0"
+            >
+              Search 
+            </button>
+          </div>
+        </form>
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
             <a class="nav-link active" href="#home">Home</a>
