@@ -1,0 +1,618 @@
+<div class="col-lg-9">
+  <div class="page-header">
+    <h1 class="page-title">All Organic Products</h1>
+    <p class="page-subtitle">Discover our selection of fresh foods</p>
+  </div>
+
+  <div class="grid-controls">
+    <div class="product-count">
+      Showing <span>{{ filteredProducts.length }}</span> of
+      <span>{{ products.length }}</span> products
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <div class="view-options">
+        <button class="view-btn" [class.active]="currentView === 'grid'" (click)="setView('grid')">
+          <i class="bi bi-grid-3x3-gap"></i>
+        </button>
+        <button class="view-btn" [class.active]="currentView === 'list'" (click)="setView('list')">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+
+      <select class="sort-select" (change)="setSort($event)">
+        <option value="default">Sort by: Default</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+        <option value="rating">Customer Rating</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    @for (product of filteredProducts; track product.id) {
+      <div [ngClass]="currentView === 'grid' ? 'col-md-6 col-xl-4' : 'col-12'">
+        <div class="product-card" [class.d-md-flex]="currentView === 'list'">
+          <div class="product-img-container" [ngClass]="{ 'col-md-4': currentView === 'list' }">
+            @if (product.isNew) {
+              <span class="product-badge bg-info">New</span>
+            }
+            @if (product.price < product.originalPrice) {
+              <span class="product-badge bg-danger">Sale</span>
+            }
+            <img [src]="product.image" class="product-img" [alt]="product.name" />
+          </div>
+
+          <div class="product-body" [ngClass]="{ 'col-md-8': currentView === 'list' }">
+            <div class="product-category">{{ product.category }}</div>
+            <h5 class="product-title">{{ product.name }}</h5>
+
+            <div class="product-rating">
+              @for (star of getStars(product.rating); track $index) {
+                <i class="bi bi-star-fill text-warning"></i>
+              }
+              <span class="rating-value">{{ product.rating }}</span>
+            </div>
+
+            <p class="product-description">{{ product.description }}</p>
+
+            <div class="product-footer">
+              <div class="product-price">
+                ${{ product.price }}
+                @if (product.price < product.originalPrice) {
+                  <small class="text-muted text-decoration-line-through"
+                    >${{ product.originalPrice }}</small
+                  >
+                }
+              </div>
+              <button class="btn btn-success" (click)="addToCart(product.id)">
+                <i class="bi bi-cart-plus"></i> Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="no-results text-center py-5">
+        <i class="bi bi-search display-1 text-muted"></i>
+        <h3>No products found</h3>
+        <button class="btn btn-success mt-3" (click)="resetFilters()">Reset Filters</button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- <script>
+    // Product Data (Sample - you would typically fetch this from an API)
+    const products = [
+      {
+        id: 1,
+        name: 'Organic Strawberries',
+        category: 'fruits',
+        price: 6.99,
+        originalPrice: 8.99,
+        rating: 4.8,
+        reviewCount: 124,
+        image:
+          'https://images.unsplash.com/photo-1592921870789-04563d55041c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+        description: 'Sweet, juicy organic strawberries packed with antioxidants.',
+        dietary: ['organic', 'gluten-free', 'vegan'],
+        availability: ['instock', 'sale'],
+        isNew: false,
+      },
+      {
+        id: 2,
+        name: 'Farm Fresh Eggs',
+        category: 'dairy',
+        price: 8.49,
+        originalPrice: 8.49,
+        rating: 4.9,
+        reviewCount: 89,
+        image:
+          'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Free-range eggs from pasture-raised chickens.',
+        dietary: ['organic', 'non-gmo'],
+        availability: ['instock'],
+        isNew: false,
+      },
+      {
+        id: 3,
+        name: 'Organic Avocados',
+        category: 'fruits',
+        price: 4.99,
+        originalPrice: 4.99,
+        rating: 4.7,
+        reviewCount: 203,
+        image:
+          'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Creamy, nutrient-rich organic avocados.',
+        dietary: ['organic', 'gluten-free', 'vegan'],
+        availability: ['instock', 'new'],
+        isNew: true,
+      },
+      {
+        id: 4,
+        name: 'Organic Quinoa',
+        category: 'pantry',
+        price: 9.99,
+        originalPrice: 9.99,
+        rating: 4.6,
+        reviewCount: 56,
+        image:
+          'https://images.unsplash.com/photo-1598965675045-45c2d0c8d7b9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'High-protein ancient grain, perfect for healthy meals.',
+        dietary: ['organic', 'gluten-free', 'vegan', 'non-gmo'],
+        availability: ['instock'],
+        isNew: false,
+      },
+      {
+        id: 5,
+        name: 'Organic Spinach',
+        category: 'vegetables',
+        price: 3.99,
+        originalPrice: 3.99,
+        rating: 4.5,
+        reviewCount: 78,
+        image:
+          'https://images.unsplash.com/photo-1576045057995-568f588f82fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Fresh, leafy organic spinach rich in iron.',
+        dietary: ['organic', 'gluten-free', 'vegan'],
+        availability: ['instock'],
+        isNew: false,
+      },
+      {
+        id: 6,
+        name: 'Organic Almond Milk',
+        category: 'beverages',
+        price: 5.49,
+        originalPrice: 5.49,
+        rating: 4.8,
+        reviewCount: 112,
+        image:
+          'https://images.unsplash.com/photo-1626631791016-0c3c6b03c8e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Creamy, dairy-free almond milk with no added sugar.',
+        dietary: ['organic', 'gluten-free', 'vegan', 'non-gmo'],
+        availability: ['instock'],
+        isNew: false,
+      },
+      {
+        id: 7,
+        name: 'Organic Honey',
+        category: 'pantry',
+        price: 12.99,
+        originalPrice: 15.99,
+        rating: 4.9,
+        reviewCount: 67,
+        image:
+          'https://images.unsplash.com/photo-1587049352851-8d4e89133924?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Pure, raw honey from local beekeepers.',
+        dietary: ['organic', 'gluten-free'],
+        availability: ['instock', 'sale'],
+        isNew: false,
+      },
+      {
+        id: 8,
+        name: 'Organic Tomatoes',
+        category: 'vegetables',
+        price: 4.49,
+        originalPrice: 4.49,
+        rating: 4.7,
+        reviewCount: 91,
+        image:
+          'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Vine-ripened organic tomatoes with rich flavor.',
+        dietary: ['organic', 'gluten-free', 'vegan'],
+        availability: ['instock', 'new'],
+        isNew: true,
+      },
+      {
+        id: 9,
+        name: 'Blueberries',
+        category: 'fruits',
+        price: 7.99,
+        originalPrice: 7.99,
+        rating: 4.8,
+        reviewCount: 145,
+        image:
+          'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Antioxidant-rich organic blueberries.',
+        dietary: ['organic', 'gluten-free', 'vegan'],
+        availability: ['instock'],
+        isNew: false,
+      },
+      {
+        id: 10,
+        name: 'Greek Yogurt',
+        category: 'dairy',
+        price: 5.99,
+        originalPrice: 6.99,
+        rating: 4.6,
+        reviewCount: 203,
+        image:
+          'https://images.unsplash.com/photo-1567306301408-9b74779a11af?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Creamy organic Greek yogurt, high in protein.',
+        dietary: ['organic', 'gluten-free'],
+        availability: ['instock', 'sale'],
+        isNew: false,
+      },
+      {
+        id: 11,
+        name: 'Organic Carrots',
+        category: 'vegetables',
+        price: 3.49,
+        originalPrice: 3.49,
+        rating: 4.4,
+        reviewCount: 89,
+        image:
+          'https://images.unsplash.com/photo-1598170845058-78131a90f4f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Sweet organic carrots, perfect for snacking.',
+        dietary: ['organic', 'gluten-free', 'vegan'],
+        availability: ['instock'],
+        isNew: false,
+      },
+      {
+        id: 12,
+        name: 'Organic Green Tea',
+        category: 'beverages',
+        price: 8.99,
+        originalPrice: 8.99,
+        rating: 4.9,
+        reviewCount: 167,
+        image:
+          'https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+        description: 'Premium organic green tea leaves.',
+        dietary: ['organic', 'gluten-free', 'vegan'],
+        availability: ['instock', 'new'],
+        isNew: true,
+      },
+      // Add more products as needed
+    ];
+
+    // State Management
+    let activeFilters = {
+      category: [],
+      price: 50,
+      rating: [],
+      diet: [],
+      availability: ['instock'],
+    };
+
+    let currentView = 'grid';
+    let currentSort = 'default';
+
+    // DOM Elements
+    const productGrid = document.getElementById('productGrid');
+    const filterTags = document.getElementById('filterTags');
+    const visibleCount = document.getElementById('visibleCount');
+    const totalCount = document.getElementById('totalCount');
+    const noResults = document.getElementById('noResults');
+    const sortSelect = document.getElementById('sortSelect');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    const viewButtons = document.querySelectorAll('.view-btn');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
+      initializeProductGrid();
+    });
+
+    function initializeProductGrid() {
+      // Set total product count
+      totalCount.textContent = products.length;
+
+      // Add event listeners
+      sortSelect.addEventListener('change', function () {
+        currentSort = this.value;
+        renderProducts();
+      });
+
+      viewButtons.forEach((btn) => {
+        btn.addEventListener('click', function () {
+          viewButtons.forEach((b) => b.classList.remove('active'));
+          this.classList.add('active');
+          currentView = this.dataset.view;
+          renderProducts();
+        });
+      });
+
+      resetFiltersBtn.addEventListener('click', function () {
+        activeFilters = {
+          category: [],
+          price: 50,
+          rating: [],
+          diet: [],
+          availability: ['instock'],
+        };
+        renderProducts();
+        updateFilterDisplay();
+      });
+
+      // Initial render
+      renderProducts();
+    }
+
+    // Filter products based on active filters
+    function filterProducts() {
+      return products.filter((product) => {
+        // Category filter
+        if (
+          activeFilters.category.length > 0 &&
+          !activeFilters.category.includes(product.category)
+        ) {
+          return false;
+        }
+
+        // Price filter
+        if (product.price > activeFilters.price) {
+          return false;
+        }
+
+        // Rating filter
+        if (activeFilters.rating.length > 0) {
+          const meetsRating = activeFilters.rating.some((rating) => product.rating >= rating);
+          if (!meetsRating) return false;
+        }
+
+        // Dietary filter
+        if (activeFilters.diet.length > 0) {
+          const meetsDiet = activeFilters.diet.every((diet) => product.dietary.includes(diet));
+          if (!meetsDiet) return false;
+        }
+
+        // Availability filter
+        if (activeFilters.availability.length > 0) {
+          const meetsAvailability = activeFilters.availability.some((avail) => {
+            if (avail === 'new') return product.isNew;
+            if (avail === 'sale') return product.price < product.originalPrice;
+            return product.availability.includes(avail);
+          });
+          if (!meetsAvailability) return false;
+        }
+
+        return true;
+      });
+    }
+
+    // Sort products
+    function sortProducts(filteredProducts) {
+      const sorted = [...filteredProducts];
+
+      switch (currentSort) {
+        case 'price-low':
+          return sorted.sort((a, b) => a.price - b.price);
+        case 'price-high':
+          return sorted.sort((a, b) => b.price - a.price);
+        case 'rating':
+          return sorted.sort((a, b) => b.rating - a.rating);
+        case 'name-a':
+          return sorted.sort((a, b) => a.name.localeCompare(b.name));
+        case 'name-z':
+          return sorted.sort((a, b) => b.name.localeCompare(a.name));
+        case 'newest':
+          return sorted.sort((a, b) => b.isNew - a.isNew);
+        default:
+          return sorted;
+      }
+    }
+
+    // Render products to the grid
+    function renderProducts() {
+      // Filter products
+      let filteredProducts = filterProducts();
+
+      // Sort products
+      filteredProducts = sortProducts(filteredProducts);
+
+      // Update counts
+      visibleCount.textContent = filteredProducts.length;
+
+      // Show/hide no results message
+      if (filteredProducts.length === 0) {
+        productGrid.innerHTML = '';
+        noResults.classList.remove('d-none');
+        return;
+      } else {
+        noResults.classList.add('d-none');
+      }
+
+      // Clear product grid
+      productGrid.innerHTML = '';
+
+      // Render each product
+      filteredProducts.forEach((product) => {
+        const productCard = document.createElement('div');
+        productCard.className = currentView === 'grid' ? 'col-md-6 col-xl-4' : 'col-12';
+
+        // Generate star rating HTML
+        const starRating = generateStarRating(product.rating);
+
+        // Check if product is on sale
+        const isOnSale = product.price < product.originalPrice;
+        const discountPercent = isOnSale
+          ? Math.round((1 - product.price / product.originalPrice) * 100)
+          : 0;
+
+        // Generate badges HTML
+        const badges = [];
+        if (product.isNew) badges.push('<span class="product-badge bg-info">New</span>');
+        if (isOnSale)
+          badges.push(`<span class="product-badge bg-danger">${discountPercent}% OFF</span>`);
+        if (product.dietary.includes('organic'))
+          badges.push('<span class="product-badge bg-success">Organic</span>');
+
+        const badgesHTML = badges.join('');
+
+        // Product card HTML
+        productCard.innerHTML = `
+            <div class="product-card ${currentView === 'list' ? 'd-md-flex' : ''}">
+                <div class="${currentView === 'list' ? 'product-img-container flex-shrink-0 col-md-4' : 'product-img-container'}">
+                    ${badgesHTML}
+                    <img src="${product.image}" class="product-img" alt="${product.name}">
+                </div>
+                <div class="product-body ${currentView === 'list' ? 'col-md-8' : ''}">
+                    <div class="product-category">${getCategoryName(product.category)}</div>
+                    <h5 class="product-title">${product.name}</h5>
+                    <div class="product-rating">
+                        ${starRating}
+                        <span class="rating-value">${product.rating} (${product.reviewCount})</span>
+                    </div>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-footer">
+                        <div>
+                            <div class="product-price">
+                                $${product.price.toFixed(2)}
+                                ${isOnSale ? `<small class="text-muted text-decoration-line-through">$${product.originalPrice.toFixed(2)}</small>` : ''}
+                            </div>
+                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                ${product.dietary.includes('organic') ? '<span class="badge bg-success">Organic</span>' : ''}
+                                ${product.dietary.includes('gluten-free') ? '<span class="badge bg-info">Gluten Free</span>' : ''}
+                                ${product.dietary.includes('vegan') ? '<span class="badge bg-warning">Vegan</span>' : ''}
+                                ${product.dietary.includes('non-gmo') ? '<span class="badge bg-primary">Non-GMO</span>' : ''}
+                            </div>
+                        </div>
+                        <button class="add-to-cart-btn btn btn-success" onclick="addToCart(${product.id})">
+                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        productGrid.appendChild(productCard);
+      });
+    }
+
+    // Generate star rating HTML
+    function generateStarRating(rating) {
+      let stars = '';
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.5;
+
+      for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="bi bi-star-fill"></i>';
+      }
+
+      if (hasHalfStar) {
+        stars += '<i class="bi bi-star-half"></i>';
+      }
+
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+      for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="bi bi-star"></i>';
+      }
+
+      return stars;
+    }
+
+    // Get category display name
+    function getCategoryName(category) {
+      const categoryNames = {
+        fruits: 'Fresh Fruits',
+        vegetables: 'Organic Vegetables',
+        dairy: 'Dairy & Eggs',
+        pantry: 'Pantry Staples',
+        beverages: 'Beverages',
+      };
+
+      return categoryNames[category] || category;
+    }
+
+    // Update filter tags display
+    function updateFilterDisplay() {
+      filterTags.innerHTML = '';
+
+      // Category tags
+      activeFilters.category.forEach((category) => {
+        const categoryNames = {
+          fruits: 'Fresh Fruits',
+          vegetables: 'Organic Vegetables',
+          dairy: 'Dairy & Eggs',
+          pantry: 'Pantry Staples',
+          beverages: 'Beverages',
+        };
+
+        addFilterTag('category', category, categoryNames[category]);
+      });
+
+      // Price tag
+      if (activeFilters.price < 50) {
+        addFilterTag('price', activeFilters.price, `Under $${activeFilters.price}`);
+      }
+
+      // Rating tags
+      activeFilters.rating.forEach((rating) => {
+        addFilterTag('rating', rating, `${rating}+ Stars`);
+      });
+
+      // Dietary tags
+      activeFilters.diet.forEach((diet) => {
+        const dietNames = {
+          organic: 'Certified Organic',
+          'gluten-free': 'Gluten Free',
+          vegan: 'Vegan',
+          'non-gmo': 'Non-GMO',
+        };
+
+        addFilterTag('diet', diet, dietNames[diet]);
+      });
+
+      // Availability tags (except default 'instock')
+      activeFilters.availability.forEach((avail) => {
+        if (avail !== 'instock') {
+          const availNames = {
+            new: 'New Arrivals',
+            sale: 'On Sale',
+          };
+
+          addFilterTag('availability', avail, availNames[avail]);
+        }
+      });
+    }
+
+    // Add a filter tag
+    function addFilterTag(type, value, displayText) {
+      const tag = document.createElement('div');
+      tag.className = 'filter-tag';
+      tag.innerHTML = `
+        ${displayText}
+        <button class="remove-tag" data-type="${type}" data-value="${value}">
+            <i class="bi bi-x"></i>
+        </button>
+    `;
+
+      // Add remove event listener
+      const removeBtn = tag.querySelector('.remove-tag');
+      removeBtn.addEventListener('click', function () {
+        removeFilter(type, value);
+      });
+
+      filterTags.appendChild(tag);
+    }
+
+    // Remove a specific filter
+    function removeFilter(type, value) {
+      if (type === 'category') {
+        activeFilters.category = activeFilters.category.filter((cat) => cat !== value);
+      } else if (type === 'price') {
+        activeFilters.price = 50;
+      } else if (type === 'rating') {
+        activeFilters.rating = activeFilters.rating.filter((r) => r !== parseInt(value));
+      } else if (type === 'diet') {
+        activeFilters.diet = activeFilters.diet.filter((d) => d !== value);
+      } else if (type === 'availability') {
+        activeFilters.availability = activeFilters.availability.filter((a) => a !== value);
+      }
+
+      updateFilterDisplay();
+      renderProducts();
+    }
+
+    // Cart function placeholder (implement based on your needs)
+    function addToCart(productId) {
+      console.log(`Added product ${productId} to cart`);
+      // Implement your cart logic here
+    }
+
+    // Make functions available globally
+    window.addToCart = addToCart;
+    window.removeFilter = removeFilter;
+  </script> -->
