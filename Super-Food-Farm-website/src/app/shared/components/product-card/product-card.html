@@ -6,7 +6,7 @@
 
   <div class="grid-controls">
     <div class="product-count">
-      Showing <span>{{ filteredProducts.length }}</span> of
+      Showing <span>{{ products.length }}</span> of
       <span>{{ products.length }}</span> products
     </div>
 
@@ -30,8 +30,8 @@
   </div>
 
   <div class="row">
-    @for (product of filteredProducts; track product.id) {
-      <div [ngClass]="currentView === 'grid' ? 'col-md-6 col-xl-4' : 'col-12'">
+    @for (product of products; track product.id) {
+      <div [ngClass]="currentView === 'grid' ? 'col-md-12 col-xl-4 m-5' : 'col-12'">
         <div class="product-card" [class.d-md-flex]="currentView === 'list'">
           <div class="product-img-container" [ngClass]="{ 'col-md-4': currentView === 'list' }">
             @if (product.isNew) {
@@ -40,28 +40,28 @@
             @if (product.price < product.originalPrice) {
               <span class="product-badge bg-danger">Sale</span>
             }
-            <img [src]="product.image" class="product-img" [alt]="product.name" />
+            <img src="http://localhost:3000/uploads/product/{{product.product_img}}" class="product-img" [alt]="product.tag" />
           </div>
 
           <div class="product-body" [ngClass]="{ 'col-md-8': currentView === 'list' }">
             <div class="product-category">{{ product.category }}</div>
-            <h5 class="product-title">{{ product.name }}</h5>
+            <h5 class="product-title">{{ product.tag }}</h5>
 
             <div class="product-rating">
-              @for (star of getStars(product.rating); track $index) {
+              @for (star of getStars(product.star); track $index) {
                 <i class="bi bi-star-fill text-warning"></i>
               }
-              <span class="rating-value">{{ product.rating }}</span>
+              <span class="rating-value">{{ product.star }}</span>
             </div>
 
-            <p class="product-description">{{ product.description }}</p>
+            <p class="product-description">{{ product.product_desc }}</p>
 
             <div class="product-footer">
               <div class="product-price">
-                ${{ product.price }}
-                @if (product.price < product.originalPrice) {
+                ${{ product.actual_price }}
+                @if (product.actual_price < product.discounted_price) {
                   <small class="text-muted text-decoration-line-through"
-                    >${{ product.originalPrice }}</small
+                    >${{ product.discounted_price }}</small
                   >
                 }
               </div>
